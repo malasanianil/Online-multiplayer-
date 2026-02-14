@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakes and Ladders Multiplayer Game</title>
+    <style>
+        /* Basic styles for the board and game */
+        body { font-family: Arial, sans-serif; }
+        #board { display: grid; grid-template-columns: repeat(10, 60px); gap: 1px; }
+        .cell { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+        .snake { background-color: red; }
+        .ladder { background-color: green; }
+        .player { width: 30px; height: 30px; border-radius: 50%; }
+        .lobby { margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Multiplayer Snakes and Ladders</h1>
+    <div class="lobby">
+        <button onclick="createLobby()">Create Lobby</button>
+        <input type="text" id="lobbyCode" placeholder="Enter Lobby Code" />
+        <button onclick="joinLobby()">Join Lobby</button>
+    </div>
+    <div id="board"></div>
+    <button id="rollDice" onclick="rollDice()">Roll Dice</button>
+    <div id="diceResult"></div>
+
+    <script>
+        const snakes = { 16: 6, 47: 26, 49: 11, 56: 53, 64: 60, 87: 24, 93: 73, 95: 75 };
+        const ladders = { 1: 38, 4: 14, 9: 31, 21: 42, 28: 84, 51: 67, 72: 91, 80: 100 };
+        let currentPlayer = 0;
+        let players = [];
+        let playerPositions = [];
+        let lobbyId = '';
+
+        function createLobby() {
+            lobbyId = Math.random().toString(36).substring(2, 7);
+            alert('Lobby created! Share this code: ' + lobbyId);
+        }
+
+        function joinLobby() {
+            const code = document.getElementById('lobbyCode').value;
+            if (code === lobbyId) {
+                alert('Joined lobby: ' + code);
+            } else {
+                alert('Invalid lobby code.');
+            }
+        }
+
+        function rollDice() {
+            const diceRoll = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('diceResult').innerText = 'You rolled: ' + diceRoll;
+            movePlayer(diceRoll);
+        }
+
+        function movePlayer(diceRoll) {
+            let position = playerPositions[currentPlayer] + diceRoll;
+            if (position > 100) return;
+            players[currentPlayer].classList.remove('active');
+            playerPositions[currentPlayer] = snakes[ladders[position] || position] || position;
+            renderBoard();
+            currentPlayer = (currentPlayer + 1) % players.length;
+            players[currentPlayer].classList.add('active');
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let i = 100; i >= 1; i--) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.innerText = i;
+                if (snakes[i]) cell.classList.add('snake');
+                if (ladders[i]) cell.classList.add('ladder');
+                board.appendChild(cell);
+            }
+            renderPlayers();
+        }
+
+        function renderPlayers() {
+            for (let i = 0; i < players.length; i++) {
+                const playerDiv = document.createElement('div');
+                playerDiv.classList.add('player');
+                playerDiv.style.backgroundColor = i === currentPlayer ? 'blue' : 'gray';
+                players[i].appendChild(playerDiv);
+            }
+        }
+
+        // Initialize
+        for (let i = 0; i < 4; i++) {
+            players.push(document.createElement('div'));
+            playerPositions.push(0);
+        }
+        renderBoard();
+    </script>
+</body>
+</html>
