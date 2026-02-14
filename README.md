@@ -1,2 +1,2 @@
-# Online-multiplayer-
+# Online-multiplayer
 Game project
